@@ -1,4 +1,5 @@
 """Utilities"""
+import numpy as np
 
 def mat2axis():
     pass
