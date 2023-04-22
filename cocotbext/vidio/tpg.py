@@ -57,8 +57,3 @@ def generate_frame(resh, resv, pixelperclock, pixelquant, pattern):
             )
         full_axi_frame.append(single_axi_frame)
     return full_axi_frame
-
-if __name__ == "__main__":
-    #Test
-    full_axi_frame = generate_frame(8, 8, 2, 10, "p_incr")
-    print(full_axi_frame)
