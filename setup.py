@@ -13,7 +13,6 @@ setup(
     install_requires=['cocotbext.axi',
                       'numpy',
                       'cocotb',
-                      'python-vlc'
                       ],
     python_requires = '>=3.6',
     classifiers = [
