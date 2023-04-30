@@ -10,13 +10,13 @@ def mat2axis(matrix, resH, pixelPerClock, pixelQuant):
     """
     c = resH
     p = pixelPerClock
-    v = matrix.shape[0]/resH
+    v = int(matrix.shape[0]/resH)
     q = pixelQuant
-    pack_range =  int(v/p)
+    pack_range =  int(c/p)
     frame = matrix
     full_axi_frame = []
     k = 0
-    for j in range(c):
+    for j in range(v):
         packed_list = []
         for _ in range(pack_range):
             packed_value = (frame[k+1, 2] << q*5) | (frame[k+1, 1] << q*4) | (frame[k+1, 0] << q*3) | (frame[k, 2] << q*2) | (frame[k, 1] << q) | frame[k, 0]
@@ -42,11 +42,11 @@ def axis2mat(axisFrame, resH, pixelPerClock, pixelQuant):
     """
     r = len(axisFrame)
     c = resH
-    pack_range = int(resH/pixelPerClock)
     p = pixelPerClock
+    pack_range = int(c/p)
     q = pixelQuant
-    mat = np.zeros((r, c, 3), dtype=np.uint16)
-    mask = (1 << pixelQuant) - 1
+    mat = np.zeros((r, c, 3), dtype=np.int16)
+    mask = (1 << q) - 1
     for i in range(r):
         for j in range(pack_range):
             d_val = int.from_bytes(axisFrame[i].tdata[j*8:8*(j+1)], byteorder='little', signed=False)
