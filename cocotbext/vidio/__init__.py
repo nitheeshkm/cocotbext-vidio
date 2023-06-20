@@ -1,2 +1,2 @@
 from .version import __version__
-from .vidio import GenRGBAXIStream, ConvertAXIStreamCS
+from .vidio import GenAXIStream, ConvertAXIStreamCS

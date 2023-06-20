@@ -1,13 +1,10 @@
 import enum
 
-class VideoType(enum.IntEnum):
+class ColorFormat(enum.IntEnum):
     RGB = 0
-    YUV = 1
-
-class ChromaType(enum.IntEnum):
-    YUV444 = 0
-    YUV422 = 1
-    YUV420 = 2
+    YUV444 = 1
+    YUV422 = 2
+    YUV420 = 3
 
 class Standard(enum.IntEnum):
     BT601 = 0
@@ -18,5 +15,3 @@ class Pattern(enum.IntEnum):
     p_incr = 0
     rand = 1
     h_incr = 2
-
-
