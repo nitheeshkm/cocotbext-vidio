@@ -1,6 +1,7 @@
 # vidio (video io)
 
 This generates the AXIStream frame for video subsystems to be used with cocotb.  
+This generates the AXIStream frame for video subsystems to be used with cocotb.  
 
 Functions:
 - GenAXIStream: Generates an AXIS frame
