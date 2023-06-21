@@ -5,13 +5,13 @@ from .constants import Standard, Pattern, ColorFormat
 from .csc import rgb2yuv
 
 def GenAXIStream(resH, resV, pixelPerClock, pixelQuant, pattern, format):
-    """ 
+    """
     - returns: AXIS transaction for one frame
     - resh: Horizontal resoltuion, >1
     - resv: Vertixal resolution, >1
     - pixelperclock: Pixel per clock in AXI transaction, [2]
     - pixelquant: Quantization, 10
-    - pattern: 
+    - pattern:
         - p_incr = counter increment on every pixel
         - rand = random
         - h_incr = horizontal pixel increment
@@ -34,16 +34,35 @@ def GenAXIStream(resH, resV, pixelPerClock, pixelQuant, pattern, format):
                 rgb[i, j, :] = j % (2**q)
     else:
         raise ValueError("Unknown pattern")
-    
+
+    mask = np.ones((r*c, 3), dtype=np.uint16)
+    vcount, hcount = 0, 0
+    if (format == ColorFormat.YUV422):
+        for i in range(r*c):
+            if (i%2) :
+                mask[i][1:] = [0, 0]
+    elif (format == ColorFormat.YUV420):
+        for i in range(r*c):
+            if (i%2) :
+                mask[i][1:] = [0, 0]
+            if vcount%2 :
+                mask[i][1:] = [0, 0]
+            if hcount == resH-1:
+                vcount = vcount + 1
+                hcount = 0
+            else:
+                hcount = hcount + 1
+
     rgbreshape = np.reshape(rgb, newshape=(r*c,3))
-    axis = mat2axis(rgbreshape, resH, pixelPerClock, pixelQuant, format)
+    rgbreshape = rgbreshape*mask
+    axis = mat2axis(rgbreshape, resH, pixelPerClock, 10, format)
 
-    return axis
+    return axis, rgbreshape
 
-    
+
 def ConvertAXIStreamCS(resH, pixelPerClock, pixelQuant, outputFormat, axisFrame):
-    """ 
-    - returns: Color converted AXIS 
+    """
+    - returns: Color converted AXIS
     - resh: Horizontal resoltuion, >1
     - pixelperclock: Pixel per clock in AXI transaction, [2]
     - pixelquant: Quantization, 10
