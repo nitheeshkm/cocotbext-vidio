@@ -1,14 +1,15 @@
 # vidio (video io)
 
 This generates the AXIStream frame for video subsystems to be used with cocotb.  
+This generates the AXIStream frame for video subsystems to be used with cocotb.  
 
 Functions:
-- GenRGBAXIStream: Generates an AXIS frame
+- GenAXIStream: Generates an AXIS frame
 - ConvertAXIStreamCS: Converts color space RGB to YUV [In development] 
 
 Roadmap:
-- AXIS to matrix
-- Matrix to AXIS
+- AXIS to matrix [Add 422, 420]
+- Matrix to AXIS 
 - Generate color bars AXIS/matrix, supporting ITU-R BT.601-7, ITU-R BT.709-5
 - Color convertion
 - Chroma convertion

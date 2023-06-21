@@ -1,55 +1,77 @@
 import numpy as np
 
-from .utils import mat2axis, axis2mat
-from .constants import VideoType, Standard, Pattern
+from .utils import mat2axis, axis2mat, csy444toy422
+from .constants import Standard, Pattern, ColorFormat
 from .csc import rgb2yuv
 
-def GenRGBAXIStream(resH, resV, pixelPerClock, pixelQuant, pattern):
-    """ 
+def GenAXIStream(resH, resV, pixelPerClock, pixelQuant, pattern, format):
+    """
     - returns: AXIS transaction for one frame
     - resh: Horizontal resoltuion, >1
     - resv: Vertixal resolution, >1
     - pixelperclock: Pixel per clock in AXI transaction, [2]
     - pixelquant: Quantization, 10
-    - pattern: 
+    - pattern:
         - p_incr = counter increment on every pixel
         - rand = random
         - h_incr = horizontal pixel increment
+    - format: RGB, YUV444, YUV422, YUV420
     """
     c ,r, q = resH, resV, pixelQuant
-    mat = np.zeros((r, c, 3), dtype=np.uint16)
+    rgb = np.zeros((r, c, 3), dtype=np.uint16)
 
     if pattern == Pattern.p_incr:
         for i in range(r):
             for j in range(c):
                 for k in range(3):
-                    mat[i, j, k] = 512 + (i * r * 3 + j * 3 + k) % (2**q)
+                    rgb[i, j, k] = (i * r * 3 + j * 3 + k) % (2**q)
     elif pattern == Pattern.rand:
-        mat = np.random.rand(r, c, 3)
-        mat = (mat*1023).astype(np.uint16)
+        rgb = np.random.rand(r, c, 3)
+        rgb = (rgb*((2**q)-1)).astype(np.uint16)
     elif pattern == Pattern.h_incr:
         for i in range(r):
             for j in range(c):
-                mat[i, j, :] = j
+                rgb[i, j, :] = j % (2**q)
     else:
         raise ValueError("Unknown pattern")
 
-    mat = np.reshape(mat, newshape=(r*c,3))
+    mask = np.ones((r*c, 3), dtype=np.uint16)
+    vcount, hcount = 0, 0
+    if (format == ColorFormat.YUV422):
+        for i in range(r*c):
+            if (i%2) :
+                mask[i][1:] = [0, 0]
+    elif (format == ColorFormat.YUV420):
+        for i in range(r*c):
+            if (i%2) :
+                mask[i][1:] = [0, 0]
+            if vcount%2 :
+                mask[i][1:] = [0, 0]
+            if hcount == resH-1:
+                vcount = vcount + 1
+                hcount = 0
+            else:
+                hcount = hcount + 1
 
-    return mat2axis(mat, resH, pixelPerClock, pixelQuant)
-    
-def ConvertAXIStreamCS(resH, pixelPerClock, pixelQuant, outputVideoType, axisFrame):
-    """ 
-    - returns: Color converted AXIS 
+    rgbreshape = np.reshape(rgb, newshape=(r*c,3))
+    rgbreshape = rgbreshape*mask
+    axis = mat2axis(rgbreshape, resH, pixelPerClock, 10, format)
+
+    return axis, rgbreshape
+
+
+def ConvertAXIStreamCS(resH, pixelPerClock, pixelQuant, outputFormat, axisFrame):
+    """
+    - returns: Color converted AXIS
     - resh: Horizontal resoltuion, >1
     - pixelperclock: Pixel per clock in AXI transaction, [2]
     - pixelquant: Quantization, 10
-    - outputVideoType: VideoType
+    - outputFormat: RGB, YUV444, YUV422, YUV420
     - axisFrame: input frame to color convert
     """
     mat = axis2mat(axisFrame, resH, pixelPerClock, pixelQuant)
-    if outputVideoType == VideoType.YUV:
+    if outputFormat == ColorFormat.YUV444:
         conv = rgb2yuv(mat, Standard.BT2020)
-        return mat2axis(conv.T, resH, pixelPerClock, pixelQuant)
+        return mat2axis(conv.T, resH, pixelPerClock, pixelQuant, outputFormat)
     else:
-        raise ValueError("Unknown outputVideoType")
+        raise ValueError("Unknown outputFormat")
