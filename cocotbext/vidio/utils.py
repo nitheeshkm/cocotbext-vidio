@@ -73,7 +73,7 @@ def mat2axis(matrix, resH, pixelPerClock, pixelQuant, outFormat):
         full_axi_frame.append(single_axi_frame)
     return full_axi_frame
 
-def axis2mat(axisFrame, resH, pixelPerClock, pixelQuant):
+def axis2mat(axisFrame, resH, pixelPerClock, pixelQuant, fmt):
     """ 
     converts axis to matrix
     - axisFrame: cocotbext.axi.AxiStreamFrame
@@ -85,16 +85,21 @@ def axis2mat(axisFrame, resH, pixelPerClock, pixelQuant):
     pack_range = int(c/p)
     q = pixelQuant
     mat = np.zeros((r, c, 3), dtype=np.int16)
-    mask = (1 << q) - 1
-    for i in range(r):
-        for j in range(pack_range):
-            d_val = int.from_bytes(axisFrame[i].tdata[j*8:8*(j+1)], byteorder='little', signed=False)
-            mat[i][2*j][0] = d_val >> 0*10 & mask
-            mat[i][2*j][1] = d_val >> 1*10 & mask
-            mat[i][2*j][2] = d_val >> 2*10 & mask
-            mat[i][2*j+1][0] = d_val >> 3*10 & mask
-            mat[i][2*j+1][1] = d_val >> 4*10 & mask
-            mat[i][2*j+1][2] = d_val >> 5*10 & mask
+    if (fmt == ColorFormat.RGB or fmt == ColorFormat.YUV444):
+        mask = (1 << q) - 1
+        for i in range(r):
+            for j in range(pack_range):
+                d_val = int.from_bytes(axisFrame[i].tdata[j*8:8*(j+1)], byteorder='little', signed=False)
+                mat[i][2*j][0] = d_val >> 0*10 & mask
+                mat[i][2*j][1] = d_val >> 1*10 & mask
+                mat[i][2*j][2] = d_val >> 2*10 & mask
+                mat[i][2*j+1][0] = d_val >> 3*10 & mask
+                mat[i][2*j+1][1] = d_val >> 4*10 & mask
+                mat[i][2*j+1][2] = d_val >> 5*10 & mask
+    elif (fmt == ColorFormat.YUV422):
+        pass
+    else:
+        pass
     
     return np.reshape(mat, newshape=(r*c,3))
 
