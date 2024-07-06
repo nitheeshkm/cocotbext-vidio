@@ -83,5 +83,9 @@ def ConvertAXIStreamCS(resH, pixelPerClock, pixelQuant, inputFormat, outputForma
             return mat2axis(conv.T, resH, pixelPerClock, pixelQuant, ColorFormat.YUV422)
         else:
             raise ValueError("Unsupported Format combination")
+    elif inputFormat == ColorFormat.YUV420:
+        if outputFormat == ColorFormat.YUV422:
+            conv = y420to422(mat)
+            return mat2axis(conv.T, resH, pixelPerClock, pixelQuant, ColorFormat.YUV420)
     else:
         raise ValueError("Unsupported inputFormat")
