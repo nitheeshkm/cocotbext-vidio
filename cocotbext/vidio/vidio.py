@@ -2,7 +2,7 @@ import numpy as np
 
 from .utils import mat2axis, axis2mat
 from .constants import Standard, Pattern, ColorFormat
-from .csc import rgb2yuv, y444to422
+from .csc import rgb2yuv, y444to422, y420to422
 
 def GenAXIStream(resH, resV, pixelPerClock, pixelQuant, pattern, format):
     """
@@ -85,7 +85,7 @@ def ConvertAXIStreamCS(resH, pixelPerClock, pixelQuant, inputFormat, outputForma
             raise ValueError("Unsupported Format combination")
     elif inputFormat == ColorFormat.YUV420:
         if outputFormat == ColorFormat.YUV422:
-            conv = y420to422(mat)
+            conv = y420to422(mat, resH)
             return mat2axis(conv.T, resH, pixelPerClock, pixelQuant, ColorFormat.YUV420)
     else:
         raise ValueError("Unsupported inputFormat")

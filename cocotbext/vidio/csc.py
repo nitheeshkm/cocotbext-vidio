@@ -37,12 +37,13 @@ def y444to422(y444):
             y422[i][2] = (y444[i][2] // 2) + (y444[i+1][2] // 2)
     return y422.T
 
-def y420to422(y420, resH, resV):
+def y420to422(y420, resH):
     """
     returns matrix with shape (m*n, 3)
     """
     y422 = np.zeros((y420.shape[0], y420.shape[1]), dtype=np.uint16)
     y422 = y420
+    resV = int(len(y422) / resH)
     for i in range(resV):
         if i%2:
             for j in range(resH):
