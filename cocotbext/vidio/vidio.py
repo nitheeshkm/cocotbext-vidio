@@ -18,7 +18,7 @@ def GenAXIStream(resH, resV, pixelPerClock, pixelQuant, pattern, format):
     - format: RGB, YUV444, YUV422, YUV420
     """
     c ,r, q = resH, resV, pixelQuant
-    rgb = np.zeros((r, c, 3), dtype=np.uint16)
+    rgb = np.zeros((r, c, 3), dtype=np.uint64)
 
     if pattern == Pattern.p_incr:
         for i in range(r):
@@ -27,7 +27,7 @@ def GenAXIStream(resH, resV, pixelPerClock, pixelQuant, pattern, format):
                     rgb[i, j, k] = (i * r * 3 + j * 3 + k) % (2**q)
     elif pattern == Pattern.rand: # TODO: Fix bug here. The matrix returned isn't matching data on simulation (gtkwave)
         rgb = np.random.rand(r, c, 3)
-        rgb = (rgb*((2**q)-1)).astype(np.uint16)
+        rgb = (rgb*((2**q)-1)).astype(np.uint64)
     elif pattern == Pattern.h_incr:
         for i in range(r):
             for j in range(c):
@@ -35,7 +35,7 @@ def GenAXIStream(resH, resV, pixelPerClock, pixelQuant, pattern, format):
     else:
         raise ValueError("Unknown pattern")
 
-    mask = np.ones((r*c, 3), dtype=np.uint16)
+    mask = np.ones((r*c, 3), dtype=np.uint64)
     vcount, hcount = 0, 0
     if (format == ColorFormat.YUV422):
         for i in range(r*c):
@@ -74,18 +74,18 @@ def ConvertAXIStreamCS(resH, pixelPerClock, pixelQuant, inputFormat, outputForma
     if inputFormat == ColorFormat.RGB:
         if outputFormat == ColorFormat.YUV444:
             conv = rgb2yuv(mat, Standard.BT2020)
-            return mat2axis(conv.T, resH, pixelPerClock, pixelQuant, ColorFormat.YUV444)
+            return mat2axis(conv.T, resH, pixelPerClock, pixelQuant, ColorFormat.YUV444), conv.T
         else:
             raise ValueError("Unsupported Format combination")
     elif inputFormat == ColorFormat.YUV444:
         if outputFormat == ColorFormat.YUV422:
             conv = y444to422(mat)
-            return mat2axis(conv.T, resH, pixelPerClock, pixelQuant, ColorFormat.YUV422)
+            return mat2axis(conv.T, resH, pixelPerClock, pixelQuant, ColorFormat.YUV422), conv.T
         else:
             raise ValueError("Unsupported Format combination")
     elif inputFormat == ColorFormat.YUV420:
         if outputFormat == ColorFormat.YUV422:
             conv = y420to422(mat, resH)
-            return mat2axis(conv.T, resH, pixelPerClock, pixelQuant, ColorFormat.YUV420)
+            return mat2axis(conv.T, resH, pixelPerClock, pixelQuant, ColorFormat.YUV420), conv.T
     else:
         raise ValueError("Unsupported inputFormat")
