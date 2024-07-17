@@ -114,6 +114,22 @@ def axis2mat(axisFrame, resH, pixelPerClock, pixelQuant, fmt):
                 mat[i][2*j][1] = d_val >> 1*10 & mask
                 mat[i][2*j+1][0] = d_val >> 2*10 & mask
                 mat[i][2*j][2] = d_val >> 3*10 & mask
+    elif (fmt == ColorFormat.YUV420):
+        for i in range(r):
+            if i%2:
+                for j in range(pack_range):
+                    d_val = int.from_bytes(axisFrame[i].tdata[j*8:8*(j+1)], byteorder='little', signed=False)
+                    mat[i][2*j][0] = d_val >> 0*10 & mask
+                    mat[i][2*j][1] = 0
+                    mat[i][2*j+1][0] = d_val >> 2*10 & mask
+                    mat[i][2*j][2] = 0
+            else :
+                for j in range(pack_range):
+                    d_val = int.from_bytes(axisFrame[i].tdata[j*8:8*(j+1)], byteorder='little', signed=False)
+                    mat[i][2*j][0] = d_val >> 0*10 & mask
+                    mat[i][2*j][1] = d_val >> 1*10 & mask
+                    mat[i][2*j+1][0] = d_val >> 2*10 & mask
+                    mat[i][2*j][2] = d_val >> 3*10 & mask
     else:
         raise ValueError("Unsupported ColorFormat")
     
