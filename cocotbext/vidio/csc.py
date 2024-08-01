@@ -49,8 +49,8 @@ def y420to422(y420, resH):
             for j in range(resH):
                 y422[i*resH + j][0] = y420[i*resH + j][0]
                 if i == resV-1 :
-                    y422[i*resH + j][1] = (y420[(i-1)*resH + j][1]) / 2
-                    y422[i*resH + j][2] = (y420[(i-1)*resH + j][2]) / 2
+                    y422[i*resH + j][1] = (y420[(i-1)*resH + j][1])
+                    y422[i*resH + j][2] = (y420[(i-1)*resH + j][2])
                 else :
                     y422[i*resH + j][1] = (y420[(i-1)*resH + j][1] + y420[(i+1)*resH + j][1]) / 2
                     y422[i*resH + j][2] = (y420[(i-1)*resH + j][2] + y420[(i+1)*resH + j][2]) / 2

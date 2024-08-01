@@ -28,4 +28,7 @@ Build instructions
 
 python3 -m build
 pip install ./dist/cocotbext_vidio-x.y.z-py3-none-any.whl
+
+Publish package at pypi.org using twine, need to enter API key
+python3 -m twine upload  dist/*
 -->
